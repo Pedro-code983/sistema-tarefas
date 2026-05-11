@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roysse Tasks | Loja de Mimos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        .flash-msg {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: white;
+        }
+        .sucesso { background-color: #2ecc71; }
+        .erro { background-color: #e74c3c; }
+        .inventario-secao { margin-top: 40px; border-top: 1px solid rgba(243, 156, 18, 0.3); padding-top: 20px; }
+    </style>
+</head>
+<body class="fundo-logado">
+
+    <aside class="sidebar">
+        <div class="logo-area">
+            <h1>Roysse</h1>
+            <span>Mimos Shop</span>
+        </div>
+        
+        <div class="stats-sidebar" style="background: rgba(243, 156, 18, 0.15); border: 1px solid #f39c12; margin-bottom: 20px; padding: 15px; border-radius: 8px; text-align: center;">
+            <small style="color: #f39c12; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Seu Saldo</small> 
+            <p style="font-size: 1.8rem; margin: 5px 0 0 0;">🍪 {{ cookies }}</p>
+        </div>
+
+        <nav class="menu-nav">
+            <a href="/">📊 Dashboard</a>
+            <a href="#">📂 Categorias</a>
+            <a href="/loja" class="active">🛒 Loja de Mimos</a> 
+        </nav>
+
+        <div class="stats-sidebar">
+            <div class="stat-item"><small>Economia</small><p>Ativa</p></div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar"><h2>Mercado de Recompensas</h2></header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash-msg {{ 'sucesso' if category == 'success' else 'erro' }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <section class="dashboard-grid">
+            <div class="form-section">
+                <div class="post-card">
+                    <h4 style="color: #f39c12; margin-bottom: 15px;">Novo Mimo</h4> 
+                    <form method="POST" action="/loja">
+                        <input type="text" name="nome" placeholder="Nome do mimos (ex: 1h de Game)" required>
+                        <textarea name="descricao" placeholder="O que você ganha com isso?"></textarea>
+                        <div class="input-group">
+                            <input type="number" name="preco" placeholder="Preço em Cookies" required>
+                        </div>
+                        <button type="submit" style="background: #e67e22;">Cadastrar na Loja</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="tasks-section">
+                <h3>🛍️ Recompensas Disponíveis</h3>
+                <div class="task-list">
+                    {% for item in itens %}
+                        <div class="task-card" style="border-left: 4px solid #f39c12;">
+                            <div class="task-info">
+                                <strong>{{ item[1] }}</strong>
+                                <small>{{ item[3] }}</small>
+                            </div>
+                            <div class="task-actions" style="display: flex; align-items: center; gap: 15px;">
+                                <span style="color: #f39c12; font-weight: 600;">🍪 {{ item[2] }}</span>
+                                <form method="POST" action="/comprar/{{ item[0] }}">
+                                    <button class="btn-icon" style="background: #f39c12; color: white; padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; width: auto;">RESGATAR</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="inventario-secao">
+                    <h3 style="color: #2ecc71;">🎒 Meu Inventário (Já Resgatados)</h3>
+                    <div class="task-list">
+                        {% if not meus_itens %}
+                            <p style="color: #999; font-style: italic;">Você ainda não resgatou nenhum mimo.</p>
+                        {% endif %}
+                        {% for meu in meus_itens %}
+                            <div class="task-card" style="border-left: 4px solid #2ecc71; opacity: 0.8; background: rgba(46, 204, 113, 0.05);">
+                                <div class="task-info">
+                                    <strong>{{ meu[1] }}</strong>
+                                    <small>{{ meu[2] }}</small>
+                                </div>
+                                <div class="task-actions">
+                                    <span style="color: #2ecc71; font-weight: bold;">ADQUIRIDO</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
