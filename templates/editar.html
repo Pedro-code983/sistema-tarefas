@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar | Roysse Tasks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="fundo-logado">
+    <aside class="sidebar">
+        <div class="logo-area"><h1>Roysse</h1><span>Tasks v2.0</span></div>
+        <nav class="menu-nav"><a href="/">📊 Dashboard</a><a href="#" class="active">✏️ Editando...</a></nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar"><h2>Refinando a Tarefa</h2><a href="/" style="color: #bdc3c7; text-decoration: none;">← Voltar</a></header>
+        <section style="max-width: 600px; margin: 0 auto;">
+            <div class="post-card">
+                <form method="POST">
+                    <label>Título</label>
+                    <input type="text" name="titulo" value="{{ tarefa[1] }}" required>
+                    <label>Descrição</label>
+                    <textarea name="descricao">{{ tarefa[2] }}</textarea>
+                    <div class="input-group">
+                        <input type="text" name="categoria" value="{{ tarefa[6] }}">
+                        <input type="date" name="data_limite" value="{{ tarefa[4] }}">
+                    </div>
+                    <label>Prioridade</label>
+                    <select name="prioridade">
+                        <option value="Alta" {% if tarefa[5] == 'Alta' %}selected{% endif %}>Alta 🔥</option>
+                        <option value="Média" {% if tarefa[5] == 'Média' %}selected{% endif %}>Média ⚡</option>
+                        <option value="Baixa" {% if tarefa[5] == 'Baixa' %}selected{% endif %}>Baixa 🧊</option>
+                    </select>
+                    <button type="submit">Salvar Alterações</button>
+                </form>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
