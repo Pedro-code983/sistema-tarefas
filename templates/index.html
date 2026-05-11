@@ -2,84 +2,100 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro de Tarefas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roysse Tasks | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body class="fundo-logado">
 
-    <h1>Cadastro de Tarefas</h1>
+    <aside class="sidebar">
+        <div class="logo-area">
+            <h1>Roysse</h1>
+            <span>Tasks v2.0</span>
+        </div>
+        
+        <div class="stats-sidebar" style="background: rgba(243, 156, 18, 0.15); border: 1px solid #f39c12; margin-bottom: 20px; padding: 15px; border-radius: 8px; text-align: center;">
+            <small style="color: #f39c12; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Seu Saldo</small> 
+            <p style="font-size: 1.8rem; margin: 5px 0 0 0;">🍪 {{ cookies }}</p>
+        </div>
 
-    <!-- Contador -->
-    <p><strong>Pendentes:</strong> {{ pendentes }}</p>
-    <p><strong>Concluídas:</strong> {{ concluidas }}</p>
+        <nav class="menu-nav">
+            <a href="/" class="active">📊 Dashboard</a>
+            <a href="#">📂 Categorias</a>
+            <a href="/loja">🛒 Loja de Mimos</a> 
+        </nav>
 
-    <!-- Formulário -->
-    <form method="POST">
-        <input type="text" name="titulo" placeholder="Título da tarefa" required>
-        <br><br>
+        <div class="stats-sidebar">
+            <div class="stat-item"><small>Pendentes</small><p>{{ pendentes }}</p></div>
+            <div class="stat-item"><small>Concluídas</small><p>{{ concluidas }}</p></div>
+        </div>
+    </aside>
 
-        <textarea name="descricao" placeholder="Descrição"></textarea>
-        <br><br>
+    <main class="main-content">
+        <header class="top-bar"><h2>Gestão de Alta Performance</h2></header>
 
-        <input type="date" name="data_limite">
-        <br><br>
-
-        <button type="submit">Adicionar Tarefa</button>
-    </form>
-
-    <!-- Pendentes -->
-    <h2>⏳ Pendentes</h2>
-    <ul>
-    {% for tarefa in tarefas %}
-        {% if tarefa[3] == 'pendente' %}
-            <li>
-                <strong>{{ tarefa[1] }}</strong>: {{ tarefa[2] }}
-
-                {% if tarefa[4] %}
-                    <br><small>Data limite: {{ tarefa[4] }}</small>
-                {% endif %}
-
-                <div class="acoes">
-                    <form method="POST" action="/concluir/{{ tarefa[0] }}">
-                        <button type="submit">Concluir</button>
-                    </form>
-
-                    <form method="POST" action="/delete/{{ tarefa[0] }}">
-                        <button type="submit">Deletar</button>
-                    </form>
-                </div>
-            </li>
-        {% endif %}
-    {% endfor %}
-    </ul>
-
-    <!-- Concluídas -->
-    <h2>✅ Concluídas</h2>
-    <ul>
-    {% for tarefa in tarefas %}
-        {% if tarefa[3] == 'concluida' %}
-            <li>
-                <span class="concluida">
-                    <strong>{{ tarefa[1] }}</strong>: {{ tarefa[2] }}
-                </span>
-
-                {% if tarefa[4] %}
-                    <br><small>Data limite: {{ tarefa[4] }}</small>
-                {% endif %}
-
-                <div class="acoes">
-                    <form method="POST" action="/desfazer/{{ tarefa[0] }}">
-                        <button type="submit">Desfazer</button>
-                    </form>
-
-                    <form method="POST" action="/delete/{{ tarefa[0] }}">
-                        <button type="submit">Deletar</button>
+        <section class="dashboard-grid">
+            <div class="form-section">
+                <div class="post-card">
+                    <h4 style="color: #f39c12; margin-bottom: 15px;">Nova Missão</h4> 
+                    <form method="POST">
+                        <input type="text" name="titulo" placeholder="O que precisa ser feito?" required>
+                        <textarea name="descricao" placeholder="Detalhes da missão..."></textarea>
+                        <div class="input-group">
+                            <input type="text" name="categoria" placeholder="Categoria">
+                            <input type="date" name="data_limite">
+                        </div>
+                        <select name="prioridade">
+                            <option value="Alta">Alta 🔥 (+20 Cookies)</option>
+                            <option value="Média" selected>Média ⚡ (+10 Cookies)</option>
+                            <option value="Baixa">Baixa 🧊 (+5 Cookies)</option>
+                        </select>
+                        <button type="submit">Lançar Missão</button>
                     </form>
                 </div>
-            </li>
-        {% endif %}
-    {% endfor %}
-    </ul>
+            </div>
 
+            <div class="tasks-section">
+                <h3>⏳ Missões Ativas</h3>
+                <div class="task-list">
+                    {% for t in tarefas %}
+                        {% if t[3] == 'pendente' %}
+                        <div class="task-card prio-border-{{ t[5]|lower }}">
+                            <div class="task-info">
+                                <strong>{{ t[1] }}</strong>
+                                <small>{{ t[6] }} | {{ t[2] }}</small>
+                            </div>
+                            <div class="task-actions">
+                                <form method="POST" action="/concluir/{{ t[0] }}"><button class="btn-icon">✔</button></form>
+                                <a href="/editar/{{ t[0] }}" class="btn-icon edit">✎</a>
+                                <form method="POST" action="/delete/{{ t[0] }}"><button class="btn-icon del">✖</button></form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <h3 style="margin-top: 40px; color: #2ecc71;">✅ Missões Cumpridas</h3>
+                <div class="task-list">
+                    {% for t in tarefas %}
+                        {% if t[3] == 'concluida' %}
+                        <div class="task-card" style="opacity: 0.6; border-left: 4px solid #2ecc71;">
+                            <div class="task-info">
+                                <strong style="text-decoration: line-through;">{{ t[1] }}</strong>
+                                <small>Recompensa Coletada</small>
+                            </div>
+                            <div class="task-actions">
+                                <form method="POST" action="/delete/{{ t[0] }}">
+                                    <button class="btn-icon del">✖</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
