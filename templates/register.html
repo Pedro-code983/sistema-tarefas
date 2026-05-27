@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Roysse Tasks | Cadastro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="background:#08090a; color:#fff; font-family:'Poppins'; display:flex; justify-content:center; align-items:center; height:100vh;">
+    <div class="post-card" style="width:100%; max-width:400px; text-align:center;">
+        <h2 style="font-family:'Pirata One'; color:#f39c12; font-size:3rem; margin-bottom:10px;">Roysse</h2>
+        <h3 style="margin-bottom:20px;">Criar Nova Conta</h3>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for m in messages %}
+                    <p style="color:#ff4757; margin-bottom:15px; font-size:0.9rem;">⚠️ {{ m }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <input type="text" name="username" placeholder="Escolha um Usuário" required>
+            <input type="password" name="password" placeholder="Escolha uma Senha" required>
+            <button type="submit">Cadastrar Conta</button>
+        </form>
+        <p style="margin-top:15px; font-size:0.85rem;"><a href="/login" style="color:#f39c12; text-decoration:none;">Já tem conta? Fazer Login</a></p>
+    </div>
+</body>
+</html>
