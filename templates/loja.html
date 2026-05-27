@@ -84,7 +84,7 @@
                             </div>
                             <div class="task-actions" style="display: flex; align-items: center; gap: 15px;">
                                 <span style="color: #f39c12; font-weight: 600;">🍪 {{ item[2] }}</span>
-                                <form method="POST" action="/comprar/{{ item[0] }}">
+                                <form method="POST" action="/comprar/{{ item[0] }}" onsubmit="return confirmarResgate('{{ item[1] }}', '{{ item[2] }}')">
                                     <button class="btn-icon" style="background: #f39c12; color: white; padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; width: auto;">RESGATAR</button>
                                 </form>
                             </div>
@@ -114,5 +114,11 @@
             </div>
         </section>
     </main>
+
+    <script>
+        function confirmarResgate(nomeMimo, precoMimo) {
+            return confirm(`Você tem certeza que deseja gastar 🍪 ${precoMimo} cookies para resgatar o mimo "${nomeMimo}"?`);
+        }
+    </script>
 </body>
 </html>
