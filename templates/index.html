@@ -6,6 +6,7 @@
     <title>Roysse Tasks | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="fundo-logado">
 
@@ -13,6 +14,11 @@
         <div class="logo-area">
             <h1>Roysse</h1>
             <span>Tasks v2.0</span>
+        </div>
+        
+        <div style="margin: 10px 0; font-size: 0.85rem; color: #bdc3c7; display: flex; justify-content: space-between; align-items: center;">
+            <span>👤 {{ username }}</span>
+            <a href="/logout" style="color: #ff4757; text-decoration: none; font-weight: 600;">Sair 🚪</a>
         </div>
         
         <div class="stats-sidebar" style="background: rgba(243, 156, 18, 0.15); border: 1px solid #f39c12; margin-bottom: 20px; padding: 15px; border-radius: 8px; text-align: center;">
@@ -26,7 +32,7 @@
             <a href="/loja">🛒 Loja de Mimos</a> 
         </nav>
 
-        <div class="stats-sidebar">
+        <div class="stats-sidebar" id="sidebar-dados" data-pendentes="{{ pendentes }}" data-concluidas="{{ concluidas }}">
             <div class="stat-item"><small>Pendentes</small><p>{{ pendentes }}</p></div>
             <div class="stat-item"><small>Concluídas</small><p>{{ concluidas }}</p></div>
         </div>
@@ -37,9 +43,16 @@
 
         <section class="dashboard-grid">
             <div class="form-section">
+                <div class="post-card" style="margin-bottom: 20px; text-align: center;">
+                    <h4 style="color: #f39c12; margin-bottom: 15px;">Análise de Produtividade</h4>
+                    <div style="max-width: 200px; margin: 0 auto;">
+                        <canvas id="chartMissoes"></canvas>
+                    </div>
+                </div>
+
                 <div class="post-card">
                     <h4 style="color: #f39c12; margin-bottom: 15px;">Nova Missão</h4> 
-                    <form method="POST">
+                    <form method="POST" action="/">
                         <input type="text" name="titulo" placeholder="O que precisa ser feito?" required>
                         <textarea name="descricao" placeholder="Detalhes da missão..."></textarea>
                         <div class="input-group">
@@ -54,22 +67,47 @@
                         <button type="submit">Lançar Missão</button>
                     </form>
                 </div>
+
+                <div class="post-card" style="margin-top: 20px;">
+                    <h4 style="color: #ff4757; margin-bottom: 15px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">🛡️ Auditoria do Sistema</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        {% for log in logs %}
+                            <div style="background: rgba(255,255,255,0.01); border-left: 3px solid #ff4757; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; color: #bdc3c7; line-height: 1.4;">
+                                <span style="color: #ff4757; font-weight: bold; margin-right: 4px;">[{{ log[1] }}]</span> {{ log[0] }}
+                            </div>
+                        {% else %}
+                            <small style="color: #7f8c8d; text-align: center; display: block; padding: 5px;">Nenhuma atividade recente.</small>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
 
             <div class="tasks-section">
                 <h3>⏳ Missões Ativas</h3>
+
+                <div class="filtros-categoria" style="margin: 15px 0 25px 0; display: flex; flex-wrap: wrap; gap: 8px;">
+                    <a href="/" class="{% if not categoria_ativa %}btn-filtro-ativo{% else %}btn-filtro-padrao{% endif %}">
+                        🌐 Todas
+                    </a>
+                    {% for cat in categorias %}
+                    <a href="/?categoria={{ cat }}" class="{% if categoria_ativa == cat %}btn-filtro-ativo{% else %}btn-filtro-padrao{% endif %}">
+                        🏷️ {{ cat }}
+                    </a>
+                    {% endfor %}
+                </div>
+
                 <div class="task-list">
                     {% for t in tarefas %}
                         {% if t[3] == 'pendente' %}
                         <div class="task-card prio-border-{{ t[5]|lower }}">
                             <div class="task-info">
                                 <strong>{{ t[1] }}</strong>
-                                <small>{{ t[6] }} | {{ t[2] }}</small>
+                                <small>{{ t[6] }} | {{ t[4] }}</small>
                             </div>
                             <div class="task-actions">
-                                <form method="POST" action="/concluir/{{ t[0] }}"><button class="btn-icon">✔</button></form>
+                                <form method="POST" action="/concluir/{{ t[0] }}"><button type="submit" class="btn-icon">✔</button></form>
                                 <a href="/editar/{{ t[0] }}" class="btn-icon edit">✎</a>
-                                <form method="POST" action="/delete/{{ t[0] }}"><button class="btn-icon del">✖</button></form>
+                                <form method="POST" action="/delete/{{ t[0] }}"><button type="submit" class="btn-icon del">✖</button></form>
                             </div>
                         </div>
                         {% endif %}
@@ -87,7 +125,7 @@
                             </div>
                             <div class="task-actions">
                                 <form method="POST" action="/delete/{{ t[0] }}">
-                                    <button class="btn-icon del">✖</button>
+                                    <button type="submit" class="btn-icon del">✖</button>
                                 </form>
                             </div>
                         </div>
@@ -97,5 +135,46 @@
             </div>
         </section>
     </main>
+
+    <script>
+        (function() {
+            const containerDados = document.getElementById('sidebar-dados');
+            if (!containerDados) return;
+
+            const pendentes = parseInt(containerDados.getAttribute('data-pendentes')) || 0;
+            const concluidas = parseInt(containerDados.getAttribute('data-concluidas')) || 0;
+
+            const ctx = document.getElementById('chartMissoes').getContext('2d');
+
+            const dadosGrafico = (pendentes === 0 && concluidas === 0) ? [1, 0] : [pendentes, concluidas];
+            const coresGrafico = (pendentes === 0 && concluidas === 0) ? ['#2c3e50', '#2ecc71'] : ['#f39c12', '#2ecc71'];
+            const labelsGrafico = (pendentes === 0 && concluidas === 0) ? ['Sem tarefas', 'Concluídas'] : ['Pendentes', 'Concluídas'];
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labelsGrafico,
+                    datasets: [{
+                        data: dadosGrafico,
+                        backgroundColor: coresGrafico,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#bdc3c7',
+                                font: { family: 'Poppins', size: 11 }
+                            }
+                        }
+                    },
+                    cutout: '72%'
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
