@@ -143,3 +143,105 @@ button:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(243, 156
 
 .btn-icon.del:hover { background: #ff4757; color: #fff; }
 .btn-icon.edit:hover { background: #3498db; color: #fff; }
+
+
+@media (max-width: 768px) {
+    /* 1. Transforma o layout de colunas paralelas em uma linha vertical única */
+    body.fundo-logado {
+        flex-direction: column;
+    }
+
+    /* 2. Destrava a sidebar para ela virar um topo fluido no celular */
+    .sidebar {
+        width: 100%;
+        position: relative; /* Remove o 'fixed' para não flutuar por cima do conteúdo */
+        height: auto;
+        padding: 20px;
+        border-right: none;
+        border-bottom: 1px solid rgba(243, 156, 18, 0.2);
+    }
+
+    /* 3. Alinha os menus horizontalmente para não ocupar espaço vertical */
+    .menu-nav {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .menu-nav a {
+        margin-bottom: 0;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        display: inline-block;
+    }
+
+    .menu-nav a:hover, .menu-nav a.active {
+        border-left: none;
+        border-bottom: 3px solid #f39c12; /* No celular, a borda vira inferior */
+    }
+
+    /* Organiza as caixinhas de Pendentes/Concluídas lado a lado */
+    .stats-sidebar {
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    /* 4. Zera o recuo da área principal para ela ocupar 100% da largura do celular */
+    .main-content {
+        margin-left: 0; /* Remove a compensação da sidebar desktop */
+        padding: 20px 15px;
+    }
+
+    .top-bar {
+        margin-bottom: 25px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .top-bar h2 {
+        font-size: 1.4rem;
+    }
+
+    /* 5. Transforma o Grid de duas colunas do Dashboard em uma coluna só */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    /* 6. Ajustas os cards de tarefas para que os botões não esmaguem em telas estreitas */
+    .task-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .task-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+
+.btn-filtro-padrao {
+    text-decoration: none;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.btn-filtro-ativo {
+    text-decoration: none;
+    padding: 6px 14px;
+    background: #f39c12;
+    color: #000;
+    font-weight: 600;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
